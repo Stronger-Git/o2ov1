@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springboot.o2ov1.dao.WeChatAuthDao">
+    <resultMap id="baseMap" type="springboot.o2ov1.entity.WeChatAuth">
+        <id property="wechatAuthId" column="wechat_auth_id"/>
+        <result property="openId" column="open_id"/>
+        <result property="createTime" column="create_time"/>
+        <association property="user" javaType="springboot.o2ov1.entity.User">
+            <id column="user_id" property="userId"/>
+            <result column="name" property="name"/>
+            <result column="profile_img" property="profileImg"/>
+            <result column="email" property="email"/>
+            <result column="gender" property="gender"/>
+            <result column="enable_status" property="enableStatus"/>
+            <result column="user_type" property="userType"/>
+            <result column="create_time" property="createTime"/>
+            <result column="last_edit_time" property="lastEditTime"/>
+        </association>
+    </resultMap>
+    <select id="selectByOpenId" resultMap="baseMap">
+        select w.wechat_auth_id,w.open_id,w.create_time,
+            u.user_id,u.name,u.profile_img,u.email,u.gender,u.enable_status,u.user_type,u.create_time,u.last_edit_time
+        from tb_wechat_auth w
+        left join tb_user u
+        on u.user_id=w.user_id
+        and w.open_id=#{id}
+    </select>
+    <insert id="insertWeChatAuth" parameterType="WeChatAuth" useGeneratedKeys="true" keyColumn="wechat_auth_id" keyProperty="wechatAuthId">
+        insert into tb_wechat_auth(user_id,open_id,create_time)
+        values(#{user.userId},#{openId},#{createTime})
+    </insert>
+
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springboot.o2ov1.dao.UserDao">
+    <select id="selectById" resultType="User">
+        select user_id,name,profile_img,email,gender,enable_status,user_type,create_time,last_edit_time
+        from tb_user
+        where user_id=#{id}
+    </select>
+    <insert id="insertUser" parameterType="User" keyProperty="userId" keyColumn="user_id" useGeneratedKeys="true">
+        insert into tb_user(name,profile_img,email,gender,enable_status,user_type,create_time,last_edit_time)
+        values (#{name}, #{profileImg},#{email},#{gender},#{enableStatus},#{userType},#{createTime,jdbcType=TIMESTAMP},#{lastEditTime,jdbcType=TIMESTAMP});
+    </insert>
+
+</mapper>

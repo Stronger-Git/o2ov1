@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springboot.o2ov1.dao.ShopDao">
+    <resultMap id="baseMap" type="springboot.o2ov1.entity.Shop">
+        <id property="shopId" column="shop_id"/>
+        <result property="shopName" column="shop_name"/>
+        <result property="shopDesc" column="shop_desc"/>
+        <result property="shopAddr" column="shop_addr"/>
+        <result property="phone" column="phone"/>
+        <result property="shopImg" column="shop_img"/>
+        <result property="priority" column="priority"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="lastEditTime" column="last_edit_time" jdbcType="TIMESTAMP"/>
+        <result property="enableStatus" column="enable_status"/>
+        <result property="advice" column="advice"/>
+        <association property="area" javaType="springboot.o2ov1.entity.Area">
+            <id property="areaId" column="area_id"/>
+            <result property="areaName" column="area_name"/>
+        </association>
+        <association property="owner" javaType="springboot.o2ov1.entity.User">
+            <id property="userId" column="user_id"/>
+            <result property="name" column="name"/>
+        </association>
+        <association property="shopCategory" javaType="springboot.o2ov1.entity.ShopCategory">
+            <id property="shopCategoryId" column="shop_category_id"/>
+            <result property="shopCategoryName" column="shop_category_name"/>
+        </association>
+    </resultMap>
+    <insert id="insertShop" useGeneratedKeys="true" keyProperty="shopId" keyColumn="shop_id">
+        insert into tb_shop(owner_id,area_id,shop_category_id,shop_name,shop_desc,shop_addr,phone,shop_img,priority,
+            create_time,last_edit_time,enable_status,advice)
+        values(#{owner.userId},#{area.areaId},#{shopCategory.shopCategoryId},#{shopName},#{shopDesc},#{shopAddr},#{phone},
+            #{shopImg},#{priority},#{createTime},#{lastEditTime},#{enableStatus},#{advice})
+    </insert>
+    <update id="updateShop" parameterType="Shop">
+        update tb_shop
+        <set>
+            <if test="shopName != null and shopName != ''">
+                shop_name=#{shopName},
+            </if>
+            <if test="shopDesc != null and shopDesc != ''">
+                shop_desc=#{shopDesc},
+            </if>
+            <if test="shopAddr != null and shopAddr != ''">
+                shop_addr=#{shopAddr},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone=#{phone},
+            </if>
+            <if test="shopImg != null and shopImg != ''">
+                shop_img=#{shopImg},
+            </if>
+            <if test="priority != null">
+                priority=#{priority,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                create_time=#{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastEditTime != null">
+                last_edit_time=#{lastEditTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="enableStatus != null">
+                enable_status=#{enableStatus,jdbcType=INTEGER},
+            </if>
+            <if test="advice != null">
+                advice=#{advice},
+            </if>
+            <if test="area != null">
+                area_id=#{area.areaId},
+            </if>
+            <if test="area != null">
+                area_id=#{area.areaId},
+            </if>
+            <if test="shopCategory != null">
+                shop_category_id=#{shopCategory.shopCategoryId},
+            </if>
+            shop_id = #{shopId}
+        </set>
+        where shop_id=#{shopId}
+    </update>
+    <select id="selectById" parameterType="Long" resultMap="baseMap">
+        select s.shop_id,s.shop_name,s.shop_desc,s.shop_addr,s.phone,s.shop_img,s.priority,s.create_time,s.last_edit_time,s.enable_status,s.advice,
+            a.area_id,a.area_name,sc.shop_category_id,sc.shop_category_name
+        from tb_shop s,tb_area a,tb_shop_category sc
+        where s.shop_category_id=sc.shop_category_id
+        and s.area_id=a.area_id
+        and s.shop_id=#{id}
+    </select>
+    <select id="selectAllByShop" resultMap="baseMap">
+        select s.shop_id,s.owner_id,s.shop_name,s.shop_desc,s.shop_addr,s.phone,s.shop_img,s.priority,s.create_time,s.last_edit_time,s.enable_status,s.advice,
+            s.enable_status,a.area_id,a.area_name,sc.shop_category_id,sc.shop_category_name
+        from tb_shop s,tb_area a,tb_shop_category sc
+        <where>
+            <if test="shop.shopCategory != null">
+                <if test="shop.shopCategory.shopCategoryId != null">
+                    and sc.shop_category_id=#{shop.shopCategory.shopCategoryId}
+                </if>
+                <if test="shop.shopCategory.parent != null and shop.shopCategory.parent.shopCategoryId != null">
+                    and sc.parent_id=#{shop.shopCategory.parent.shopCategoryId}
+                </if>
+            </if>
+            <if test="shop.area != null and shop.area.areaId != null">
+                and a.area_id=#{shop.area.areaId}
+            </if>
+            <if test="shop.shopName != null and shop.shopName != ''">
+                and s.shop_name like '%${shop.shopName}%'
+            </if>
+            <if test="shop.owner != null and shop.owner.userId != null">
+                and s.owner_id=#{shop.owner.userId}
+            </if>
+            and s.shop_category_id=sc.shop_category_id
+            and s.area_id=a.area_id
+        </where>
+        order by priority desc
+        limit #{offset},#{limit}
+    </select>
+    <select id="selectCountByShop" resultType="long">
+        select count(1)
+        from tb_shop s,tb_shop_category sc
+        <where>
+            <if test="shopCategory != null">
+                <if test="shopCategory.shopCategoryId != null">
+                    and s.shop_category_id=#{shopCategory.shopCategoryId}
+                </if>
+                <if test="shopCategory.parent != null and shopCategory.parent.shopCategoryId != null">
+                    and s.shop_category_id
+                    in (select shop_category_id from tb_shop_category where parent_id=#{shopCategory.parent.shopCategoryId})
+                </if>
+            </if>
+            <if test="area != null and area.areaId != null">
+                and s.area_id=#{area.areaId}
+            </if>
+            <if test="shopName != null and shopName != ''">
+                and s.shop_name like '%${shopName}%'
+            </if>
+            <if test="owner != null and owner.userId != null">
+                and s.owner_id=#{owner.userId}
+            </if>
+            and s.shop_category_id=sc.shop_category_id
+        </where>
+
+    </select>
+</mapper>

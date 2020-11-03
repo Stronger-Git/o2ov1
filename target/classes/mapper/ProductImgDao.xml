@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springboot.o2ov1.dao.ProductImgDao">
+    <insert id="insertBatch" parameterType="java.util.List">
+        insert into tb_product_img(product_id,img_addr,img_desc,priority,create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.productId},#{item.imgAddr},#{item.imgDesc},#{item.priority},#{item.createTime})
+        </foreach>
+    </insert>
+    <select id="selectAllById" resultType="ProductImg">
+        select product_img_id,img_addr,img_desc,priority,create_time,product_id
+        from tb_product_img
+        where product_id=#{productId}
+    </select>
+    <delete id="deleteById">
+        delete from tb_product_img
+        where product_id=#{productId}
+    </delete>
+</mapper>

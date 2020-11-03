@@ -1,0 +1,16 @@
+{
+  "groups": [
+    {
+      "name": "c3p0.datasource",
+      "type": "springboot.o2ov1.config.dao.DataSourceConfiguration",
+      "sourceType": "springboot.o2ov1.config.dao.DataSourceConfiguration"
+    },
+    {
+      "name": "kaptcha",
+      "type": "springboot.o2ov1.config.web.MvcConfigurationTest",
+      "sourceType": "springboot.o2ov1.config.web.MvcConfigurationTest"
+    }
+  ],
+  "properties": [],
+  "hints": []
+}

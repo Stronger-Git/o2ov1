@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="springboot.o2ov1.dao.LocalAuthDao">
+    <resultMap id="baseMap" type="LocalAuth">
+        <id property="localAuthId" column="local_auth_id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="lastEditTime" column="last_edit_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <resultMap id="localAuthAndUser" extends="baseMap" type="springboot.o2ov1.entity.LocalAuth">
+        <association property="user" column="{id=user_id}" select="springboot.o2ov1.dao.UserDao.selectById" fetchType="lazy">
+        </association>
+    </resultMap>
+    <select id="selectByUsernameAndPwd" resultMap="localAuthAndUser">
+        select local_auth_id,username,password,create_time,last_edit_time,user_id
+        from tb_local_auth
+        where username=#{username} and password=#{password};
+    </select>
+    <select id="selectByUserId" resultMap="baseMap">
+        select * from tb_local_auth where user_id=#{userId}
+    </select>
+    <insert id="insert" keyProperty="localAuthId" keyColumn="local_auth_id" useGeneratedKeys="true">
+        insert into tb_local_auth(username,password,create_time,last_edit_time,user_id)
+        values (#{username}, #{password}, #{createTime}, #{lastEditTime}, #{user.userId})
+    </insert>
+    <update id="updateUsernameAndPwd">
+        update tb_local_auth
+        <set>
+            <if test="newPassword != null and newPassword != ''">
+                password=#{newPassword},
+            </if>
+            <if test="updateTime != null">
+                last_edit_time=#{updateTime, jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where user_id=#{userId} and password=#{password}
+    </update>
+
+</mapper>
